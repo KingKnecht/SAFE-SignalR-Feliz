@@ -1,10 +1,10 @@
 module Server
 
+open Shared
 open Fable.Remoting.Server
 open Fable.Remoting.Giraffe
+open Fable.SignalR
 open Saturn
-
-open Shared
 
 type Storage () =
     let todos = ResizeArray<_>()

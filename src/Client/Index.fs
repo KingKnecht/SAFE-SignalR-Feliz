@@ -106,7 +106,7 @@ let view (model : Model) (dispatch : Msg -> unit) =
                     Column.Width (Screen.All, Column.Is6)
                     Column.Offset (Screen.All, Column.Is3)
                 ] [
-                    Heading.p [ Heading.Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ] ] [ str "SAFE_Test" ]
+                    Heading.p [ Heading.Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ] ] [ str "SAFE Net5.0 & Fable.SignalR" ]
                     containerBox model dispatch
                 ]
             ]
