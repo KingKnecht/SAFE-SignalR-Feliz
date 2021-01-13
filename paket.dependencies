@@ -3,6 +3,9 @@ framework: auto-detect
 storage: none
 
 nuget Fable.Remoting.Giraffe
+nuget Fable.SignalR
+nuget Fable.SignalR.Elmish
+nuget Fable.SignalR.Feliz
 nuget Fable.SignalR.Saturn
 nuget Saturn
 nuget Expecto

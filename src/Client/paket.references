@@ -7,3 +7,6 @@ Fable.FontAwesome.Free
 Fable.React
 Fable.Remoting.Client
 Fulma
+Fable.SignalR
+Fable.SignalR.Elmish
+Fable.SignalR.Feliz
