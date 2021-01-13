@@ -21,3 +21,16 @@ module Route =
 type ITodosApi =
     { getTodos : unit -> Async<Todo list>
       addTodo : Todo -> Async<Todo> }
+
+module SignalRCom =
+    [<RequireQualifiedAccess>]
+    type Action =
+        | IncrementCount of int
+        | DecrementCount of int
+
+    [<RequireQualifiedAccess>]
+    type Response =
+        | NewCount of int
+
+    module Endpoints =
+        let [<Literal>] Root = "/socket"
