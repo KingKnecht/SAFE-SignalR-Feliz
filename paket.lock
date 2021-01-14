@@ -134,6 +134,9 @@ NUGET
       Fable.React (>= 7.0.1)
       Feliz.CompilerPlugins (>= 1.2)
       FSharp.Core (>= 4.7.2)
+    Feliz.Bulma (2.8.1)
+      Feliz (>= 1.22)
+      FSharp.Core (>= 5.0)
     Feliz.CompilerPlugins (1.2)
       Fable.AST (>= 3.0)
       FSharp.Core (>= 4.7.2)
@@ -223,6 +226,8 @@ NUGET
       System.Reflection.Emit.Lightweight (>= 4.3)
       System.Threading.Tasks.Extensions (>= 4.4)
       System.ValueTuple (>= 4.4)
+    Zanaptak.TypedCssClasses (0.4)
+      FSharp.Core (>= 4.3.4)
 
 GROUP Build
 STORAGE: NONE

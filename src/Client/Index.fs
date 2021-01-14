@@ -66,72 +66,188 @@ let update (msg: Msg) (model: Model): Model * Cmd<Msg> =
     | IncrementCount -> failwith "Not Implemented"
     | DecrementCount -> failwith "Not Implemented"
 
-open Fable.React
-open Fable.React.Props
-open Fulma
+open Feliz
+open Feliz.Bulma
+open Zanaptak.TypedCssClasses
+
+type Bcss = CssClasses<"https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css", Naming.PascalCase>
+type FA = CssClasses<"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css", Naming.PascalCase>
+
+open Fable.Core.JsInterop
+open Fable.AST.Babel
+open Feliz.Bulma
+open Feliz.Bulma
+
+
+//importSideEffects "./styles/main.scss"
+//importAll "./styles/main.scss"
+
+// let navBrand =
+//     Navbar.Brand.div [] [
+//         Navbar.Item.a [ Navbar.Item.Props [
+//                             Href "https://safe-stack.github.io/"
+//                         ]
+//                         Navbar.Item.IsActive true ] [
+//             img [ Src "/favicon.png"; Alt "Logo" ]
+//         ]
+//     ]
 
 let navBrand =
-    Navbar.Brand.div [] [
-        Navbar.Item.a [ Navbar.Item.Props [
-                            Href "https://safe-stack.github.io/"
-                        ]
-                        Navbar.Item.IsActive true ] [
-            img [ Src "/favicon.png"; Alt "Logo" ]
+    Bulma.navbarBrand.div [
+        prop.children [
+            Bulma.navbarItem.a [
+                navbarItem.isExpanded
+                prop.href "https://safe-stack.github.io/"
+                prop.classes [
+                    Bcss.IsPrimary
+                    Bcss.IsActive
+                ]
+                prop.children [
+                    Html.img [
+                        prop.src "/favicon.png"
+                        prop.alt "Logo"
+                    ]
+                ]
+            ]
         ]
     ]
 
-let containerBox (model: Model) (dispatch: Msg -> unit) =
-    Box.box' [] [
-        Content.content [] [
-            Content.Ol.ol [] [
+let containerBoxTodos (model: Model) (dispatch: Msg -> unit) =
+    Bulma.box [
+
+        Bulma.content [
+            Html.orderedList [
                 for todo in model.Todos do
-                    li [] [ str todo.Description ]
+                    Html.listItem [
+                        Html.text todo.Description
+                    ]
             ]
         ]
-        Field.div [ Field.IsGrouped ] [
-            Control.p [ Control.IsExpanded ] [
-                Input.text [
-                    Input.Value model.Input
-                    Input.Placeholder "What needs to be done?"
-                    Input.OnChange(fun x -> SetInput x.Value |> dispatch)
+        Bulma.field.div [
+            prop.classes [ Bcss.IsGrouped ]
+            prop.children [
+                Bulma.control.p [
+                    prop.classes [ Bcss.IsExpanded ]
+                    prop.children [
+                        Bulma.input.text [
+                            prop.value model.Input
+                            prop.placeholder "What needs to be done?"
+                            prop.onChange (SetInput >> dispatch)
+                        ]
+                    ]
+                ]
+
+                Bulma.control.p [
+                    Bulma.button.a [
+                        prop.classes [ Bcss.IsPrimary ]
+                        prop.disabled (Todo.isValid model.Input |> not)
+                        prop.onClick (fun _ -> dispatch AddTodo)
+                        prop.text "Add"
+                    ]
                 ]
             ]
-            Control.p [] [
-                Button.a [ Button.Color IsPrimary
-                           Button.Disabled(Todo.isValid model.Input |> not)
-                           Button.OnClick(fun _ -> dispatch AddTodo) ] [
-                    str "Add"
+        ]
+    ]
+
+let containerBoxCounter (model: Model) (dispatch: Msg -> unit) =
+    Bulma.box [
+
+        Bulma.field.div [
+            //prop.classes [ Bcss.IsGrouped ]
+            prop.children [
+                Bulma.content [
+                    Bulma.control.p [
+                        Bulma.title [
+                            title.is1
+                            prop.style [style.textAlign.center]
+                            prop.text "10"
+                        ]
+                    ]
+                ]
+
+                Bulma.field.div [
+                    prop.classes [ Bcss.IsGrouped ; Bcss.IsGroupedCentered  ]
+                    prop.children [
+                        Bulma.control.p [
+                            Bulma.button.a [
+                                prop.classes [ Bcss.IsPrimary ]
+                                prop.disabled (Todo.isValid model.Input |> not)
+                                prop.onClick (fun _ -> dispatch AddTodo)
+                                prop.text "Add"
+                            ]
+                        ]
+
+                        Bulma.control.p [
+                            Bulma.button.a [
+                                prop.classes [ Bcss.IsPrimary ]
+                                prop.disabled (Todo.isValid model.Input |> not)
+                                prop.onClick (fun _ -> dispatch AddTodo)
+                                prop.text "Add"
+                            ]
+                        ]
+                   ]
                 ]
             ]
         ]
     ]
 
 let view (model: Model) (dispatch: Msg -> unit) =
-    Hero.hero [ Hero.Color IsPrimary
-                Hero.IsFullHeight
-                Hero.Props [
-                    Style [
-                        Background
-                            """linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("https://unsplash.it/1200/900?random") no-repeat center center fixed"""
-                        BackgroundSize "cover"
-                    ]
-                ] ] [
-        Hero.head [] [
-            Navbar.navbar [] [
-                Container.container [] [ navBrand ]
-            ]
+    Bulma.hero [
+        prop.style [
+            style.backgroundSize.cover
+            style.backgroundRepeat.noRepeat
+            style.backgroundPosition.fixedNoScroll
         ]
-
-        Hero.body [] [
-            Container.container [] [
-                Column.column [ Column.Width(Screen.All, Column.Is6)
-                                Column.Offset(Screen.All, Column.Is3) ] [
-                    Heading.p [ Heading.Modifiers [
-                                    Modifier.TextAlignment(Screen.All, TextAlignment.Centered)
-                                ] ] [
-                        str "SAFE Net5.0 & Fable.SignalR"
+        prop.classes [
+            Bcss.IsFullheight
+            "bg-gradient"
+        ]
+        prop.children [
+            Bulma.heroHead [
+                Bulma.navbar [
+                    prop.classes [ Bcss.IsPrimary ]
+                    prop.children [
+                        Bulma.container [ navBrand ]
                     ]
-                    containerBox model dispatch
+                ]
+            ]
+
+            Bulma.heroBody [
+                prop.children [
+                    Bulma.container [
+                        prop.classes [ Bcss.IsFullwidth ]
+                        prop.children [
+                            Bulma.columns [
+                                prop.children [
+                                    Bulma.column [
+                                        prop.classes [ Bcss.IsHalf ]
+                                        prop.children [
+                                            Bulma.title [
+                                                prop.style [ style.textAlign.center ]
+                                                prop.classes [ Bcss.IsSize1 ]
+                                                prop.children [
+                                                    Html.text "SAFE Net5.0 & Fable.SignalR"
+                                                ]
+                                            ]
+                                            containerBoxTodos model dispatch
+                                        ]
+                                    ]
+
+                                    Bulma.column [
+                                        prop.classes [ Bcss.IsHalf ]
+                                        prop.children [
+                                            Bulma.title [
+                                                prop.style [ style.textAlign.center ]
+                                                prop.classes [ Bcss.IsSize1 ]
+                                                prop.children [ Html.text "Counter" ]
+                                            ]
+                                            containerBoxCounter model dispatch
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
                 ]
             ]
         ]

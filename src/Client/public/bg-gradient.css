@@ -1,0 +1,9 @@
+/* .bg-gradient {
+    background: rgb(15,15,15);
+    background: linear-gradient(135deg, rgba(37, 245, 9, 0.973) 100%, rgba(216, 22, 22, 0.945) 100%);
+}
+ */
+
+.bg-gradient {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.1)), url("https://unsplash.it/1200/900?random") no-repeat center center fixed
+ }

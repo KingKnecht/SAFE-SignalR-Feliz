@@ -7,6 +7,8 @@ nuget Fable.SignalR
 nuget Fable.SignalR.Elmish
 nuget Fable.SignalR.Feliz
 nuget Fable.SignalR.Saturn
+nuget Feliz.Bulma
+nuget Fulma
 nuget Saturn
 nuget Expecto
 
@@ -19,7 +21,7 @@ nuget Fable.FontAwesome.Free
 nuget Fable.Mocha
 nuget Fable.React
 nuget Fable.Remoting.Client
-nuget Fulma
+nuget Zanaptak.TypedCssClasses
 
 group Build
     source https://api.nuget.org/v3/index.json
