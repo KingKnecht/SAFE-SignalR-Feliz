@@ -5,9 +5,11 @@ open Fable.Remoting.Client
 open Shared
 open Fable.SignalR.Elmish
 
+
 type Model =
     { Todos: Todo list
       Input: string
+      Counter: int
       Hub: Elmish.Hub<SignalRCom.Action, SignalRCom.Response> option }
 
 type Msg =
@@ -29,7 +31,11 @@ let todosApi =
     |> Remoting.buildProxy<ITodosApi>
 
 let init (): Model * Cmd<Msg> =
-    let model = { Todos = []; Input = ""; Hub = None }
+    let model =
+        { Todos = []
+          Input = ""
+          Hub = None
+          Counter = 0 }
 
     let cmd =
         Cmd.batch [
@@ -62,9 +68,18 @@ let update (msg: Msg) (model: Model): Model * Cmd<Msg> =
               Todos = model.Todos @ [ todo ] },
         Cmd.none
     | RegisterHub hub -> { model with Hub = Some hub }, Cmd.none
-    | SignalRMsg (_) -> failwith "Not Implemented"
-    | IncrementCount -> failwith "Not Implemented"
-    | DecrementCount -> failwith "Not Implemented"
+    | SignalRMsg response ->
+        match response with
+        | SignalRCom.Response.NewCount count -> { model with Counter = count }, Cmd.none
+    | IncrementCount ->
+        let cmds =
+            seq { 0 .. 9999 }
+            |> Seq.map (fun i -> Cmd.SignalR.send model.Hub (SignalRCom.Action.IncrementCount(model.Counter + i)))
+            |> Cmd.batch
+        //model, Cmd.SignalR.send model.Hub (SignalRCom.Action.IncrementCount model.Counter)
+        model, cmds
+
+    | DecrementCount -> model, Cmd.SignalR.send model.Hub (SignalRCom.Action.DecrementCount model.Counter)
 
 open Feliz
 open Feliz.Bulma
@@ -72,25 +87,6 @@ open Zanaptak.TypedCssClasses
 
 type Bcss = CssClasses<"https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css", Naming.PascalCase>
 type FA = CssClasses<"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css", Naming.PascalCase>
-
-open Fable.Core.JsInterop
-open Fable.AST.Babel
-open Feliz.Bulma
-open Feliz.Bulma
-
-
-//importSideEffects "./styles/main.scss"
-//importAll "./styles/main.scss"
-
-// let navBrand =
-//     Navbar.Brand.div [] [
-//         Navbar.Item.a [ Navbar.Item.Props [
-//                             Href "https://safe-stack.github.io/"
-//                         ]
-//                         Navbar.Item.IsActive true ] [
-//             img [ Src "/favicon.png"; Alt "Logo" ]
-//         ]
-//     ]
 
 let navBrand =
     Bulma.navbarBrand.div [
@@ -153,42 +149,43 @@ let containerBoxCounter (model: Model) (dispatch: Msg -> unit) =
     Bulma.box [
 
         Bulma.field.div [
-            //prop.classes [ Bcss.IsGrouped ]
             prop.children [
                 Bulma.content [
-                    Bulma.control.p [
-                        Bulma.title [
-                            title.is1
-                            prop.style [style.textAlign.center]
-                            prop.text "10"
-                        ]
+                    Bulma.title [
+                        title.is1
+                        prop.style [ style.textAlign.center ]
+                        prop.text model.Counter
                     ]
                 ]
 
                 Bulma.field.div [
-                    prop.classes [ Bcss.IsGrouped ; Bcss.IsGroupedCentered  ]
+                    prop.classes [
+                        Bcss.IsGrouped
+                        Bcss.IsGroupedCentered
+                    ]
                     prop.children [
                         Bulma.control.p [
                             Bulma.button.a [
                                 prop.classes [ Bcss.IsPrimary ]
-                                prop.disabled (Todo.isValid model.Input |> not)
-                                prop.onClick (fun _ -> dispatch AddTodo)
-                                prop.text "Add"
+                                prop.onClick (fun _ -> dispatch IncrementCount)
+                                prop.text "Increment"
                             ]
                         ]
 
                         Bulma.control.p [
                             Bulma.button.a [
                                 prop.classes [ Bcss.IsPrimary ]
-                                prop.disabled (Todo.isValid model.Input |> not)
-                                prop.onClick (fun _ -> dispatch AddTodo)
-                                prop.text "Add"
+                                prop.onClick (fun _ -> dispatch DecrementCount)
+                                prop.text "Decrement"
                             ]
                         ]
-                   ]
+                    ]
                 ]
+
             ]
+
         ]
+
     ]
 
 let view (model: Model) (dispatch: Msg -> unit) =
@@ -226,7 +223,7 @@ let view (model: Model) (dispatch: Msg -> unit) =
                                                 prop.style [ style.textAlign.center ]
                                                 prop.classes [ Bcss.IsSize1 ]
                                                 prop.children [
-                                                    Html.text "SAFE Net5.0 & Fable.SignalR"
+                                                    Html.text "REST + Socket"
                                                 ]
                                             ]
                                             containerBoxTodos model dispatch
@@ -239,7 +236,7 @@ let view (model: Model) (dispatch: Msg -> unit) =
                                             Bulma.title [
                                                 prop.style [ style.textAlign.center ]
                                                 prop.classes [ Bcss.IsSize1 ]
-                                                prop.children [ Html.text "Counter" ]
+                                                prop.children [ Html.text "Socket" ]
                                             ]
                                             containerBoxCounter model dispatch
                                         ]

@@ -47,7 +47,7 @@ module SignalRRpc =
 
     let send (msg: SignalRCom.Action) (hubContext: FableHub<SignalRCom.Action,SignalRCom.Response>) =
         update msg
-        |> hubContext.Clients.Caller.Send
+        |> hubContext.Clients.All.Send
 
 let webApp =
     Remoting.createApi()
@@ -57,9 +57,9 @@ let webApp =
 
 //Some extra logging which helps if socket can't be established.
 let configureLogging (logging: ILoggingBuilder) =
-    logging.AddFilter("Microsoft.AspNetCore.SignalR", LogLevel.Trace) |> ignore
-    logging.AddFilter("Microsoft.AspNetCore.Http.Connections", LogLevel.Trace) |> ignore
-    logging.SetMinimumLevel(LogLevel.Trace) |> ignore
+    logging.AddFilter("Microsoft.AspNetCore.SignalR", LogLevel.Error) |> ignore
+    logging.AddFilter("Microsoft.AspNetCore.Http.Connections", LogLevel.Error) |> ignore
+    logging.SetMinimumLevel(LogLevel.Critical) |> ignore
 
 let app =
     application {
