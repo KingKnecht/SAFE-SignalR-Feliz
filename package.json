@@ -31,6 +31,7 @@
         "webpack-dev-server": "^3.8.2"
     },
     "dependencies": {
+        "@fortawesome/fontawesome-free": "^5.15.2",
         "@microsoft/signalr": "^5.0.2",
         "bulma": "^0.9.1",
         "react": "^17.0.1",

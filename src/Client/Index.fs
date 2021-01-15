@@ -5,12 +5,13 @@ open Fable.Remoting.Client
 open Shared
 open Fable.SignalR.Elmish
 
+type Hub = Elmish.Hub<SignalRCom.Action, SignalRCom.Response>
 
 type Model =
     { Todos: Todo list
       Input: string
       Counter: int
-      Hub: Elmish.Hub<SignalRCom.Action, SignalRCom.Response> option }
+      Hub: Hub option}
 
 type Msg =
     //REST
@@ -23,6 +24,7 @@ type Msg =
     //Socket (RPC)
     | SignalRMsg of SignalRCom.Response
     | IncrementCount
+    | IncrementAsBatch of int
     | DecrementCount
 
 let todosApi =
@@ -71,19 +73,19 @@ let update (msg: Msg) (model: Model): Model * Cmd<Msg> =
     | SignalRMsg response ->
         match response with
         | SignalRCom.Response.NewCount count -> { model with Counter = count }, Cmd.none
-    | IncrementCount ->
+    | IncrementCount -> model, Cmd.SignalR.send model.Hub (SignalRCom.Action.IncrementCount model.Counter)
+    | IncrementAsBatch amount ->
         let cmds =
-            seq { 0 .. 9999 }
+            seq { 1 .. (amount - 1) }
             |> Seq.map (fun i -> Cmd.SignalR.send model.Hub (SignalRCom.Action.IncrementCount(model.Counter + i)))
             |> Cmd.batch
-        //model, Cmd.SignalR.send model.Hub (SignalRCom.Action.IncrementCount model.Counter)
         model, cmds
-
     | DecrementCount -> model, Cmd.SignalR.send model.Hub (SignalRCom.Action.DecrementCount model.Counter)
 
 open Feliz
 open Feliz.Bulma
 open Zanaptak.TypedCssClasses
+open Fable.SignalR.Feliz
 
 type Bcss = CssClasses<"https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css", Naming.PascalCase>
 type FA = CssClasses<"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css", Naming.PascalCase>
@@ -169,6 +171,11 @@ let containerBoxCounter (model: Model) (dispatch: Msg -> unit) =
                                 prop.classes [ Bcss.IsPrimary ]
                                 prop.onClick (fun _ -> dispatch IncrementCount)
                                 prop.text "Increment"
+                                prop.children [
+                                    Html.i [
+                                        prop.classes [ FA.Fa; FA.FaPlus ]
+                                    ]
+                                ]
                             ]
                         ]
 
@@ -177,6 +184,115 @@ let containerBoxCounter (model: Model) (dispatch: Msg -> unit) =
                                 prop.classes [ Bcss.IsPrimary ]
                                 prop.onClick (fun _ -> dispatch DecrementCount)
                                 prop.text "Decrement"
+                                prop.children [
+                                    Html.i [
+                                        prop.classes [ FA.Fa; FA.FaMinus ]
+                                    ]
+                                ]
+                            ]
+                        ]
+
+                        Bulma.control.p [
+                            Bulma.button.a [
+                                prop.classes [ Bcss.IsPrimary ]
+                                let amount = 500
+                                prop.onClick (fun _ -> dispatch (IncrementAsBatch amount))
+                                prop.text "IncrementAmount"
+
+                                prop.children [
+                                    Html.span [
+                                        prop.classes [ Bcss.Icon; Bcss.IsSmall ]
+                                        prop.children [
+                                            Html.i [
+                                                prop.classes [ FA.Fa; FA.FaTimes ]
+                                            ]
+                                        ]
+                                    ]
+                                    Html.span [ Html.text amount ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+
+            ]
+
+        ]
+
+    ]
+
+let containerBoxCounterReact (model: Model) (dispatch: Msg -> unit) =
+    let count,setCount = React.useState 0
+    let hub =
+        React.useSignalR<SignalRCom.Action,SignalRCom.Response>(fun hub ->
+            hub.withUrl(SignalRCom.Endpoints.Root)
+                .withAutomaticReconnect()
+                .configureLogging(Fable.SignalR.LogLevel.Debug)
+                .onMessage <|
+                    function
+                    | SignalRCom.Response.NewCount i -> setCount i
+        )
+    Bulma.box [
+        Bulma.field.div [
+            prop.children [
+                Bulma.content [
+                    Bulma.title [
+                        title.is1
+                        prop.style [ style.textAlign.center ]
+                        prop.text model.Counter
+                    ]
+                ]
+
+                Bulma.field.div [
+                    prop.classes [
+                        Bcss.IsGrouped
+                        Bcss.IsGroupedCentered
+                    ]
+                    prop.children [
+                        Bulma.control.p [
+                            Bulma.button.a [
+                                prop.classes [ Bcss.IsPrimary ]
+                                prop.onClick <| fun _ -> hub.current.sendNow (SignalRCom.Action.IncrementCount count)
+                                prop.text "Increment"
+                                prop.children [
+                                    Html.i [
+                                        prop.classes [ FA.Fa; FA.FaPlus ]
+                                    ]
+                                ]
+                            ]
+                        ]
+
+                        Bulma.control.p [
+                            Bulma.button.a [
+                                prop.classes [ Bcss.IsPrimary ]
+                                prop.onClick <| fun _ -> hub.current.sendNow (SignalRCom.Action.DecrementCount count)
+                                prop.text "Decrement"
+                                prop.children [
+                                    Html.i [
+                                        prop.classes [ FA.Fa; FA.FaMinus ]
+                                    ]
+                                ]
+                            ]
+                        ]
+
+                        Bulma.control.p [
+                            Bulma.button.a [
+                                prop.classes [ Bcss.IsPrimary ]
+                                let amount = 500
+                                prop.onClick <| fun _ -> hub.current.sendNow (SignalRCom.Action.IncrementCount amount)
+                                prop.text "IncrementAmount"
+
+                                prop.children [
+                                    Html.span [
+                                        prop.classes [ Bcss.Icon; Bcss.IsSmall ]
+                                        prop.children [
+                                            Html.i [
+                                                prop.classes [ FA.Fa; FA.FaTimes ]
+                                            ]
+                                        ]
+                                    ]
+                                    Html.span [ Html.text amount ]
+                                ]
                             ]
                         ]
                     ]
@@ -217,13 +333,16 @@ let view (model: Model) (dispatch: Msg -> unit) =
                             Bulma.columns [
                                 prop.children [
                                     Bulma.column [
-                                        prop.classes [ Bcss.IsHalf ]
+                                        prop.classes [ Bcss.IsOneThird ]
                                         prop.children [
                                             Bulma.title [
-                                                prop.style [ style.textAlign.center ]
-                                                prop.classes [ Bcss.IsSize1 ]
+                                                prop.style [
+                                                    style.textAlign.center
+                                                    style.color.white
+                                                ]
+                                                prop.classes [ Bcss.IsSize2 ]
                                                 prop.children [
-                                                    Html.text "REST + Socket"
+                                                    Html.text "Elmish REST + Socket"
                                                 ]
                                             ]
                                             containerBoxTodos model dispatch
@@ -231,12 +350,30 @@ let view (model: Model) (dispatch: Msg -> unit) =
                                     ]
 
                                     Bulma.column [
-                                        prop.classes [ Bcss.IsHalf ]
+                                        prop.classes [ Bcss.IsOneThird ]
                                         prop.children [
                                             Bulma.title [
-                                                prop.style [ style.textAlign.center ]
+                                                prop.style [
+                                                    style.textAlign.center
+                                                    style.color.white
+                                                ]
                                                 prop.classes [ Bcss.IsSize1 ]
-                                                prop.children [ Html.text "Socket" ]
+                                                prop.children [ Html.text "Elmish socket" ]
+                                            ]
+                                            containerBoxCounter model dispatch
+                                        ]
+                                    ]
+
+                                    Bulma.column [
+                                        prop.classes [ Bcss.IsOneThird ]
+                                        prop.children [
+                                            Bulma.title [
+                                                prop.style [
+                                                    style.textAlign.center
+                                                    style.color.white
+                                                ]
+                                                prop.classes [ Bcss.IsSize1 ]
+                                                prop.children [ Html.text "Feliz/React socket" ]
                                             ]
                                             containerBoxCounter model dispatch
                                         ]

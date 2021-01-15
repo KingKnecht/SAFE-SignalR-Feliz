@@ -1,20 +1,6 @@
-// $gradients: () !default;
-// $gradients: map-merge((
-//     chill: linear-gradient(135deg, #09e485 0%,#0291e3 100%),
-//     warm: linear-gradient(135deg, #F2CD48 0%,#FD803F 100%),
-//     hot: linear-gradient(135deg, #F9445A 0%,#FD803F 100%),
-//     cold: linear-gradient(135deg, #8019C6 0%,#2F93CC 100%),
-//     massive: linear-gradient(135deg, #000000 0%,#000000 100%)
-// ), $gradients);
+@charset "utf-8";
+@import "../../../node_modules/bulma/bulma.sass";
+@import "../../../node_modules/@fortawesome/fontawesome-free/css/all.css";
 
-// // Gradient backgrounds
-// @mixin bg-gradient($parent, $gradient) {
-//     #{$parent} {
-//       background: $gradient;
-//     }
-// }
-
-// // Gradient Classes
-// @each $gradient, $value in $gradients {
-//     @include bg-gradient(“bg-gradient-#{$gradient}”, $value);
-//     }
+@import "./bg-gradient.css";
+//@import "./debug.css";
