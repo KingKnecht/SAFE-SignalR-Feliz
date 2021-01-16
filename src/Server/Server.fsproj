@@ -6,6 +6,9 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="paket.references" />
+    <Compile Include="Storage.fs" />
+    <Compile Include="ExternalHub.fs" />
+    <Compile Include="SignalrRpc.fs" />
     <Compile Include="Server.fs" />
   </ItemGroup>
   <ItemGroup>

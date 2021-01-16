@@ -6,7 +6,7 @@ open Fable.Mocha
 open Expecto
 #endif
 
-open Shared
+open ClientServerShared
 
 let shared = testList "Shared" [
     testCase "Empty string is not a valid description" <| fun _ ->

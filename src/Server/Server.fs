@@ -1,5 +1,4 @@
 
-open Shared
 open Fable.Remoting.Server
 open Fable.Remoting.Giraffe
 open Fable.SignalR
@@ -8,68 +7,40 @@ open Microsoft.Extensions.Logging
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.AspNetCore.Http
-
-//REST -> Socket updates
-type IDistributor =
-    abstract Send : SignalRCom.Response -> unit
-
-type Distributor (hub: FableHubCaller<SignalRCom.Action,SignalRCom.Response>) =
-    let hub = hub
-    interface IDistributor with
-        member this.Send msg = hub.Clients.All.Send msg |> ignore
-
-type Storage () =
-    let todos = ResizeArray<_>()
-
-    member __.GetTodos () =
-        List.ofSeq todos
-
-    member __.AddTodo (todo: Todo) =
-        if Todo.isValid todo.Description then
-            todos.Add todo
-            Ok ()
-        else Error "Invalid todo"
+open ClientServerShared
+open Storage
+open ExternalHub
 
 let storage = Storage()
 
-storage.AddTodo(Todo.create "Create new SAFE project") |> ignore
-storage.AddTodo(Todo.create "Write your app") |> ignore
-storage.AddTodo(Todo.create "Ship it !!!") |> ignore
+storage.AddTodo(Todo.create "Learn F# basics") |> ignore
+storage.AddTodo(Todo.create "Learn F# intermediate stuff") |> ignore
+storage.AddTodo(Todo.create "Learn F# hardcore stuff") |> ignore
+storage.AddTodo(Todo.create "See the matrix") |> ignore
 
-let createTodosApi (distributor : IDistributor)=
+let createTodosApi (distributor : IExternalHub)=
     { getTodos = fun () -> async { return storage.GetTodos() }
       addTodo =
-        fun todo -> async {
+        fun writeRequest -> async {
+            let todo = writeRequest.Payload
             match storage.AddTodo todo with
             | Ok () ->
-                        do distributor.Send (SignalRCom.Response.TodoAdded(todo))
+                        do distributor.SendAllExcept writeRequest.SignalrConnectionId (SignalrCom.Response.TodoAdded(todo))
                         return todo
             | Error e -> return failwith e
-        } }
+        }
+    }
 
-//SignalR RPC style.
-module SignalRRpc =
-    open FSharp.Control.Tasks.V2
-
-    let update (msg: SignalRCom.Action) =
-        match msg with
-        | SignalRCom.Action.IncrementCount i -> SignalRCom.Response.NewCount(i + 1)
-        | SignalRCom.Action.DecrementCount i -> SignalRCom.Response.NewCount(i - 1)
-
-    let invoke (msg: SignalRCom.Action) (hubContext: FableHub) =
-        task { return update msg }
-
-    let send (msg: SignalRCom.Action) (hubContext: FableHub<SignalRCom.Action,SignalRCom.Response>) =
-        update msg
-        |> hubContext.Clients.All.Send
-
-let createTodoApiFromContext (httpContext: HttpContext) : Shared.ITodosApi =
-    let distributor = httpContext.GetService<IDistributor>()
+//Used to build the Todos-REST API with HttpContext
+//to be able to inject the ExternalHub into the API.
+let createTodoApiFromContext (httpContext: HttpContext) : ITodosApi =
+    let distributor = httpContext.GetService<IExternalHub>()
     createTodosApi distributor
 
 let webApp =
     Remoting.createApi()
     |> Remoting.withRouteBuilder Route.builder
+    //FromContext instead of FromValue, due ExternalHub injection
     |> Remoting.fromContext createTodoApiFromContext
     |> Remoting.buildHttpHandler
 
@@ -79,8 +50,9 @@ let configureLogging (logging: ILoggingBuilder) =
     logging.AddFilter("Microsoft.AspNetCore.Http.Connections", LogLevel.Debug) |> ignore
     logging.SetMinimumLevel(LogLevel.Debug) |> ignore
 
+//Register service(s), which will be resolved by the ASP.Core DI-Container.
 let configureServices (services : IServiceCollection) =
-    services.AddSingleton<IDistributor, Distributor>()
+    services.AddSingleton<IExternalHub, ExternalHub>()
 
 let app =
     application {
@@ -89,11 +61,13 @@ let app =
         memory_cache
         use_static "public"
         use_gzip
+        //The RPC-style Hub.
         use_signalr (
             configure_signalr {
-                endpoint SignalRCom.Endpoints.Root
-                send SignalRRpc.send
-                invoke SignalRRpc.invoke
+                endpoint SignalrCom.Endpoints.Root
+                send SignalrRpc.send
+                invoke SignalrRpc.invoke
+                with_on_connected SignalrRpc.onConnected
             }
         )
         service_config configureServices

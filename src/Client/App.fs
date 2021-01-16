@@ -40,6 +40,6 @@ Program.mkProgram Index.init Index.update Index.view
 |> Program.withReactSynchronous "elmish-app"
 #if DEBUG
 //|> Program.withDebuggerCoders (fun m -> modelEncoder m.Hub.Value)  modelDecoder
-|> Program.withDebugger
+//|> Program.withDebugger
 #endif
 |> Program.run
