@@ -31,6 +31,7 @@ module SignalRCom =
     [<RequireQualifiedAccess>]
     type Response =
         | NewCount of int
+        | TodoAdded of Todo
 
     module Endpoints =
         let [<Literal>] Root = "/socket"

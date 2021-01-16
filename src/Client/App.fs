@@ -35,11 +35,11 @@ importSideEffects "./styles/main.scss"
 
 Program.mkProgram Index.init Index.update Index.view
 #if DEBUG
-//|> Program.withConsoleTrace
+|> Program.withConsoleTrace
 #endif
 |> Program.withReactSynchronous "elmish-app"
 #if DEBUG
 //|> Program.withDebuggerCoders (fun m -> modelEncoder m.Hub.Value)  modelDecoder
-//|> Program.withDebugger
+|> Program.withDebugger
 #endif
 |> Program.run

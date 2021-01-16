@@ -5,6 +5,18 @@ open Fable.Remoting.Giraffe
 open Fable.SignalR
 open Saturn
 open Microsoft.Extensions.Logging
+open Microsoft.Extensions.Hosting
+open Microsoft.Extensions.DependencyInjection
+open Microsoft.AspNetCore.Http
+
+//REST -> Socket updates
+type IDistributor =
+    abstract Send : SignalRCom.Response -> unit
+
+type Distributor (hub: FableHubCaller<SignalRCom.Action,SignalRCom.Response>) =
+    let hub = hub
+    interface IDistributor with
+        member this.Send msg = hub.Clients.All.Send msg |> ignore
 
 type Storage () =
     let todos = ResizeArray<_>()
@@ -24,12 +36,14 @@ storage.AddTodo(Todo.create "Create new SAFE project") |> ignore
 storage.AddTodo(Todo.create "Write your app") |> ignore
 storage.AddTodo(Todo.create "Ship it !!!") |> ignore
 
-let todosApi =
+let createTodosApi (distributor : IDistributor)=
     { getTodos = fun () -> async { return storage.GetTodos() }
       addTodo =
         fun todo -> async {
             match storage.AddTodo todo with
-            | Ok () -> return todo
+            | Ok () ->
+                        do distributor.Send (SignalRCom.Response.TodoAdded(todo))
+                        return todo
             | Error e -> return failwith e
         } }
 
@@ -49,17 +63,24 @@ module SignalRRpc =
         update msg
         |> hubContext.Clients.All.Send
 
+let createTodoApiFromContext (httpContext: HttpContext) : Shared.ITodosApi =
+    let distributor = httpContext.GetService<IDistributor>()
+    createTodosApi distributor
+
 let webApp =
     Remoting.createApi()
     |> Remoting.withRouteBuilder Route.builder
-    |> Remoting.fromValue todosApi
+    |> Remoting.fromContext createTodoApiFromContext
     |> Remoting.buildHttpHandler
 
 //Some extra logging which helps if socket can't be established.
 let configureLogging (logging: ILoggingBuilder) =
-    logging.AddFilter("Microsoft.AspNetCore.SignalR", LogLevel.Error) |> ignore
-    logging.AddFilter("Microsoft.AspNetCore.Http.Connections", LogLevel.Error) |> ignore
-    logging.SetMinimumLevel(LogLevel.Critical) |> ignore
+    logging.AddFilter("Microsoft.AspNetCore.SignalR", LogLevel.Debug) |> ignore
+    logging.AddFilter("Microsoft.AspNetCore.Http.Connections", LogLevel.Debug) |> ignore
+    logging.SetMinimumLevel(LogLevel.Debug) |> ignore
+
+let configureServices (services : IServiceCollection) =
+    services.AddSingleton<IDistributor, Distributor>()
 
 let app =
     application {
@@ -75,6 +96,7 @@ let app =
                 invoke SignalRRpc.invoke
             }
         )
+        service_config configureServices
         logging configureLogging
     }
 

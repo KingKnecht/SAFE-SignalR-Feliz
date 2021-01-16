@@ -73,6 +73,8 @@ let update (msg: Msg) (model: Model): Model * Cmd<Msg> =
     | SignalRMsg response ->
         match response with
         | SignalRCom.Response.NewCount count -> { model with Counter = count }, Cmd.none
+        | SignalRCom.Response.TodoAdded todo -> { model with Todos = todo::model.Todos}, Cmd.none
+
     | IncrementCount -> model, Cmd.SignalR.send model.Hub (SignalRCom.Action.IncrementCount model.Counter)
     | IncrementAsBatch amount ->
         let cmds =
@@ -231,6 +233,7 @@ let containerBoxCounterReact (model: Model) (dispatch: Msg -> unit) =
                 .onMessage <|
                     function
                     | SignalRCom.Response.NewCount i -> setCount i
+                    | _ -> () |> ignore
         )
     Bulma.box [
         Bulma.field.div [
