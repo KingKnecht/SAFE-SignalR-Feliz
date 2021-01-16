@@ -12,7 +12,8 @@ Missing:
 ## Install pre-requisites
 You'll need to install the following pre-requisites in order to build SAFE applications
 
-* The [.NET Core SDK](https://www.microsoft.com/net/download) 5.0
+* The [.NET Core SDK](https://www.microsoft.com/net/download) 3.1 (for Fable)
+* The [.NET Core SDK](https://www.microsoft.com/net/download) 5.0 (for Server)
 * [npm](https://nodejs.org/en/download/) package manager.
 * [Node LTS](https://nodejs.org/en/download/).
 
@@ -36,7 +37,7 @@ npm start
 ```
 Click on the link provided by webpack in the terminal window to open a browser window. Open another browser window with the same URL to see updates.
 
-**Important:** Files from *Shared.fs* are currently not under watch of webpack. Modify something in the server files then something in _Index.fs_
+**Important:** Files from *Shared.fsprj* are currently not under watch of webpack. Modify something in the server files then something in _Index.fs_
 
 You will find more documentation about the used F# components at the following places:
 
