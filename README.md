@@ -1,10 +1,18 @@
-# SAFE Template
-This template can be used to generate a full-stack web application using the [SAFE Stack](https://safe-stack.github.io/). It was created using the dotnet [SAFE Template](https://safe-stack.github.io/docs/template-overview/). If you want to learn more about the template why not start with the [quick start](https://safe-stack.github.io/docs/quickstart/) guide?
+# Template for SAFE, SignalR, Feliz
+I created this template to have a nice starting point to test some new ideas.
+At the moment it supports:
+* REST API + updates via SignalR to other clients when something has changed (e.g. Todo added)
+* SignalR RPC API Elmish-style (Counter +/-)
+* SignalR RPC API Feliz-React-style (Counter +/-)
+
+Missing:
+* Server streaming
+* Client streaming
 
 ## Install pre-requisites
 You'll need to install the following pre-requisites in order to build SAFE applications
 
-* The [.NET Core SDK](https://www.microsoft.com/net/download) 3.1 or higher.
+* The [.NET Core SDK](https://www.microsoft.com/net/download) 5.0
 * [npm](https://nodejs.org/en/download/) package manager.
 * [Node LTS](https://nodejs.org/en/download/).
 
@@ -26,7 +34,9 @@ On second terminal do:
 cd src/Client/
 npm start
 ```
-**Important: Files from *Shared.fs* are currently not under watch of webpack. Modify something in the server files then something in _Index.fs_**
+Click on the link provided by webpack in the terminal window to open a browser window. Open another browser window with the same URL to see updates.
+
+**Important:** Files from *Shared.fs* are currently not under watch of webpack. Modify something in the server files then something in _Index.fs_
 
 You will find more documentation about the used F# components at the following places:
 
