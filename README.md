@@ -14,24 +14,26 @@ Before you run the project **for the first time only** you must install dotnet "
 ```bash
 dotnet tool restore
 ```
-
 Open two terminals.
 
 On first terminal do:
+```bash
 cd src/Server/
 dotnet watch run
-
+```
 On second terminal do:
+```bash
 cd src/Client/
 npm start
-
-Client tests are available under `http://localhost:8081` in your browser and server tests are running in watch mode in console.
-
-## SAFE Stack Documentation
-If you want to know more about the full Azure Stack and all of it's components (including Azure) visit the official [SAFE documentation](https://safe-stack.github.io/docs/).
+```
+**Important: Files from *Shared.fs* are currently not under watch of webpack. Modify something in the server files then something in _Index.fs_**
 
 You will find more documentation about the used F# components at the following places:
 
 * [Saturn](https://saturnframework.org/docs/)
 * [Fable](https://fable.io/docs/)
 * [Elmish](https://elmish.github.io/elmish/)
+* [Fable.SignalR](https://shmew.github.io/Fable.SignalR/#/)
+* [Feliz](https://zaid-ajaj.github.io/Feliz/)
+* [Feliz.Bulma](https://dzoukr.github.io/Feliz.Bulma/)
+* [Bulma](https://bulma.io/documentation/)
