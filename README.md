@@ -37,6 +37,9 @@ npm start
 ```
 Click on the link provided by webpack in the terminal window to open a browser window. Open another browser window with the same URL to see updates.
 
+Like this:
+![image](https://user-images.githubusercontent.com/4339172/104827648-4ef95580-5860-11eb-9089-9f75ea1ccec4.png)
+
 **Important:** Files from *Shared.fsprj* are currently not under watch of webpack. Modify something in the server files then something in _Index.fs_
 
 You will find more documentation about the used F# components at the following places:

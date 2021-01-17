@@ -368,10 +368,10 @@ let view (model: Model) (dispatch: Msg -> unit) =
                     Bulma.container [
                         prop.classes [ Bcss.IsFullwidth ]
                         prop.children [
-                            Bulma.button.a [
-                                prop.text "GetConnId"
-                                prop.onClick (fun _ -> dispatch GetConnectionId)
-                            ]
+                            // Bulma.button.a [
+                            //     prop.text "GetConnId"
+                            //     prop.onClick (fun _ -> dispatch GetConnectionId)
+                            // ]
                             Bulma.columns [
                                 prop.children [
                                     Bulma.column [
