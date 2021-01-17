@@ -50,4 +50,4 @@ You will find more documentation about the used F# components at the following p
 * [Bulma](https://bulma.io/documentation/)
 
 
-Bear with me, if I' doing weird things in the code. I have very little experience with all that stuff. If you know how to do it better, let me know 😉
+Please bear with me, if I'm doing weird things in the code. I have very little experience with all that stuff. If you know how to do it better: Let me know 😉
