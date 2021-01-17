@@ -48,13 +48,16 @@ You will find more documentation about the used F# components at the following p
 * [Fable](https://fable.io/docs/)
 * [Elmish](https://elmish.github.io/elmish/)
 * [Fable.SignalR](https://shmew.github.io/Fable.SignalR/#/)
+* [Fable.Remoting](https://zaid-ajaj.github.io/Fable.Remoting/)
 * [Feliz](https://zaid-ajaj.github.io/Feliz/)
 * [Feliz.Bulma](https://dzoukr.github.io/Feliz.Bulma/)
 * [Bulma](https://bulma.io/documentation/)
 
 Other good readings:
 * [Elmish Book](https://zaid-ajaj.github.io/the-elmish-book/#/)
+
 * [Tablula Rasa](https://github.com/Zaid-Ajaj/tabula-rasa)
 * [F# for fun and profit](https://fsharpforfunandprofit.com/series/thinking-functionally.html)
+
 
 Please bear with me, if I'm doing weird things in the code. I have very little experience with all that stuff. If you know how to do it better: Let me know 😉
