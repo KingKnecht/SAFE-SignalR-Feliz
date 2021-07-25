@@ -60,4 +60,3 @@ Other good readings:
 * [F# for fun and profit](https://fsharpforfunandprofit.com/series/thinking-functionally.html)
 
 
-Please bear with me, if I'm doing weird things in the code. I have very little experience with all that stuff. If you know how to do it better: Let me know 😉
